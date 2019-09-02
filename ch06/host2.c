@@ -32,12 +32,13 @@ int main(int argc, char *argv[])
     server_addr.sin_addr.s_addr = inet_addr(argv[1]);
     server_addr.sin_port = htons(atoi(argv[2]));
 
-    char *message1 = "Hello!";
-    char *message2 = "Nice To Meet You!";
-    char *message3 = "Bye Bye!";
-    sendto(client_sock, message1, sizeof(message1), 0, (struct sockaddr *)&server_addr, sizeof(server_addr));
-    sendto(client_sock, message2, sizeof(message2), 0, (struct sockaddr *)&server_addr, sizeof(server_addr));
-    sendto(client_sock, message3, sizeof(message3), 0, (struct sockaddr *)&server_addr, sizeof(server_addr));
+    char message1[] = "Hello!";
+    char message2[] = "Nice To Meet You!";
+    char message3[] = "Bye Bye!";
+    printf("%s", message2);
+    sendto(client_sock, message1, sizeof(message1)+1, 0, (struct sockaddr *)&server_addr, sizeof(server_addr));
+    sendto(client_sock, message2, sizeof(message2)+1, 0, (struct sockaddr *)&server_addr, sizeof(server_addr));
+    sendto(client_sock, message3, sizeof(message3)+1, 0, (struct sockaddr *)&server_addr, sizeof(server_addr));
 
     close(client_sock);
 
