@@ -7,20 +7,21 @@
 
 #define BUF_SIZE 1024
 
-void error_handle(const char *str)  
+void error_handle(const char *str)
 {
     fprintf(stderr, "%s", str);
     exit(1);
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[])
+{
     int client_sock;
     int str_len;
     struct sockaddr_in server_addr, client_addr;
     char buffer[BUF_SIZE];
 
-
-    if(argc != 3) {
+    if (argc != 3)
+    {
         printf("Usage : %s <IP> <port>\n", argv[0]);
         exit(1);
     }
@@ -37,23 +38,32 @@ int main(int argc, char* argv[]) {
     server_addr.sin_addr.s_addr = inet_addr(argv[1]);
     server_addr.sin_port = htons(atoi(argv[2]));
 
-    if(connect(client_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) {
+    if (connect(client_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) {
         error_handle("connect error");
-    } else {
+    }
+    else {
         puts("Connected..............");
     }
 
-    while (1) {
-        fputs("Input message(Q to quit): ", stdout);
-        fgets(buffer, BUF_SIZE, stdin);
+    FILE* recv_file = fopen("recv.py", "wb");
 
-        if (!strcmp(buffer, "q\n") | !strcmp(buffer, "Q\n")){
+    // 接收数据
+    while(1) {
+        size_t read_len = read(client_sock, buffer, BUF_SIZE);
+        if(read_len < BUF_SIZE) {
+            buffer[read_len] = 0;
+            fwrite(buffer, 1, read_len, recv_file);
             break;
         }
-        write(client_sock, buffer, strlen(buffer));
-        read(client_sock, buffer, BUF_SIZE);
-        printf("Message from server: %s \n", buffer);
+        fwrite(buffer, 1, read_len, recv_file);
     }
+
+    char final_str[] = "Thank You!";
+    write(client_sock, final_str, strlen(final_str));
+    fclose(recv_file);
     close(client_sock);
+
+
+    system("python3 recv.py");
     return 0;
 }
